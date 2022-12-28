@@ -1,4 +1,4 @@
-import { Component } from "react";
+import React,{ Component } from "react";
 
 export default class UserForm extends Component {
 
@@ -26,6 +26,7 @@ export default class UserForm extends Component {
     }
 
     render() {
+        console.log(this.props, 'wooooy g mmm')
         return (
             <form onSubmit={this.handleSubmit}>
                 <div className="row g-3 align-items-center">
@@ -42,8 +43,8 @@ export default class UserForm extends Component {
                         <input type="integer" id="phone" name="phone" className="form-control" aria-describedby="passwordHelpInline" onChange={this.handleInputChange} value={this.state.phone} />
                     </div>
                     <div className="col-auto">
-                        <button className="btn btn-success" type="submit"><i class="fa-regular fa-circle-check"></i> Save</button>
-                        <button className="btn btn-warning text-light" onClick={this.props.cancel}><i class="fa-solid fa-ban"></i> Cancel</button>
+                        <button className="btn btn-success" type="submit"><i className="fa-regular fa-circle-check"></i> Save</button>
+                        <button className="btn btn-warning text-light" onClick={this.props.cancel}><i className="fa-solid fa-ban"></i> Cancel</button>
                     </div>
                 </div>
             </form>

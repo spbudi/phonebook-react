@@ -1,30 +1,123 @@
-import { Component } from "react";
+import React, { Component } from "react";
 import UserForm from "./UserForm";
 import UserList from "./UserList";
 import UserSearchForm from "./UserSearchForm";
+import axios from 'axios'
 
 export default class UserBox extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            users: [
-                { name: 'Budi', phone: 'Madiun' },
-                { name: 'Windy', phone: 'Tulungagung' }
-            ]
+            users: []
         }
     }
 
-    addUser = (name, phone) => {
-        this.setState(function (state, props) {
+    async componentDidMount() {
+        try {
+            const { data } = await axios.get('http://localhost:3000/api/phonebooks')
+            if(data.status){
+            this.setState({ users: data.data.result.map(item =>{
+                item.sent = true
+                return item
+            }) })
+            }else{
+                alert('gagal ambil data')
+            }
+            
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    addUser = async (name, phone) => {
+        const id = Date.now()
+        this.setState((state) => {
             return {
                 users: [
+                    ...state.users,
                     {
+                        id,
                         name,
-                        phone
-                    }, ...state.users
+                        phone,
+                        sent: true
+                    }
                 ]
             }
         })
+        try {
+            const { data } = await axios.post('http://localhost:3000/api/phonebooks', { name, phone })
+            if (data.status) {
+                this.setState((state) => ({
+                    users: state.users.map(item => {
+                        if (item.id === id) {
+                            return { ...data.data, sent: true }
+                        }
+                        return item
+                    })
+                }))
+            }
+        }
+        catch (err) {
+            console.log(err)
+            this.setState((state) => ({
+                users: state.users.map(item => {
+                    if (item.id === id) {
+                        item.sent = false
+                    }
+                    return item
+                })
+            }))
+        }
+    }
+
+    removeUser = async (id) => {
+        try {
+            this.setState((state) => ({
+                users: state.users.filter(props => props.id !== id)
+            }))
+            await axios.delete(`http://localhost:3000/api/phonebooks/${id}`)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    resendUser = async (id, name, phone) => {
+        try {
+        const { data } = await axios.post('http://localhost:3000/api/phonebooks', { name, phone })
+            if (data.status) {
+                console.log(data);
+                this.setState((state) => ({
+                    users: state.users.map(item => {
+                        if (item.id === id) {
+                            item.id = data.data.id
+                            item.sent =  true
+                        }
+                        return item
+                    })
+                }))
+            }
+        } catch(err){
+            console.log(err);
+        }
+    }
+
+    updateUser = async ({id, name, phone}) => {
+        const { data} = await axios.put(`http://localhost:3000/api/phonebooks/${id}`, { name, phone})
+        try {
+            if(data.status){
+                this.setState((state)=> ({
+                    users: state.users.map(item => {
+                        if(item.id === id){
+                            return { ...data.data, sent: true}
+                        }
+                        return item
+                    })
+                }))
+            }
+        } catch(err){
+            alert('Failed to edit')
+            console.log(err)
+        }
     }
 
     showAdd = (props) => {
@@ -33,13 +126,13 @@ export default class UserBox extends Component {
         }
         return (
             <div className="card mt-4">
-            <div className="card-header">
-                <h6>Adding Form</h6>
+                <div className="card-header">
+                    <h6>Adding Form</h6>
+                </div>
+                <div className="card-body">
+                    <UserForm add={this.addUser} cancel={this.handleCancelClick} />
+                </div>
             </div>
-            <div className="card-body">
-                <UserForm add={this.addUser} cancel={this.handleCancelClick}/>
-            </div>
-        </div>
         );
     }
 
@@ -65,7 +158,7 @@ export default class UserBox extends Component {
                     </div>
                 </div>
                 <div>
-                    {this.state.isAdd ? <this.showAdd show={this.state.isAdd} /> : <button className='btn btn-primary mt-4' onClick={this.handleClickAdd} ><i class="fa-solid fa-plus"></i> add</button>}
+                    {this.state.isAdd ? <this.showAdd show={this.state.isAdd} /> : <button className='btn btn-primary mt-4' onClick={this.handleClickAdd} ><i className="fa-solid fa-plus"></i> add</button>}
                 </div>
 
                 <div className="card mt-4">
@@ -73,10 +166,16 @@ export default class UserBox extends Component {
                         <h6>Search Form</h6>
                     </div>
                     <div className="card-body">
-                        <UserSearchForm add={this.addUser} />
+                        <UserSearchForm />
                     </div>
-                </div>
-                <UserList data={this.state.users} />
+                </div> 
+                <UserList 
+                data={this.state.users} 
+                removeUser={this.removeUser} 
+                updateUser={this.updateUser}
+                resendUser={this.resendUser}
+
+                />
             </div>
 
         )
