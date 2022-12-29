@@ -1,4 +1,4 @@
-import { Component } from "react";
+import React,{ Component } from "react";
 
 export default class UserSearchForm extends Component {
 
@@ -20,8 +20,9 @@ export default class UserSearchForm extends Component {
     }
 
     handleSubmit = (event) => {
+        console.log('masuk submit', this.state.name, this.state.phone);
         event.preventDefault()
-        this.props.add(this.state.name, this.state.phone)
+        this.props.submit({name: this.state.name, phone: this.state.phone})
         this.setState({ name: '', phone: '' })
     }
     render() {
@@ -29,16 +30,19 @@ export default class UserSearchForm extends Component {
             <form onSubmit={this.handleSubmit}>
                 <div className="row g-3 align-items-center">
                     <div className="col-auto">
-                        <label htmlFor="searchName" className="col-form-label">Name</label>
+                        <label htmlFor="name" className="col-form-label">Name</label>
                     </div>
                     <div className="col-auto">
-                        <input type="text" id="searchName" name="searchName" className="form-control" aria-describedby="passwordHelpInline" onChange={this.handleInputChange} />
+                        <input type="text" id="name" name="name" className="form-control" aria-describedby="passwordHelpInline" onChange={this.handleInputChange} value={this.state.name} placeholder="name" />
                     </div>
                     <div className="col-auto">
-                        <label htmlFor="searchPhone" className="col-form-label">Phone</label>
+                        <label htmlFor="phone" className="col-form-label">Phone</label>
                     </div>
                     <div className="col-auto">
-                        <input type="integer" id="searchPhone" name="searchPhone" className="form-control" aria-describedby="passwordHelpInline" onChange={this.handleInputChange} />
+                        <input type="integer" id="phone" name="phone" className="form-control" aria-describedby="passwordHelpInline" onChange={this.handleInputChange} value={this.state.phone} placeholder="phone" />
+                    </div>
+                    <div className="col-auto">
+                        <button className="btn" type="submit"></button>
                     </div>
                 </div>
             </form>

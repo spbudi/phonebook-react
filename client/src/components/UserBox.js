@@ -7,19 +7,31 @@ import axios from 'axios'
 export default class UserBox extends Component {
     constructor(props) {
         super(props)
+        this.params = {page: 1, name: '', phone: ''}
         this.state = {
-            users: []
+            users: [],
+            isAdd: false
         }
     }
 
     async componentDidMount() {
+        this.loadUser()
+    }
+
+    loadUser = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3000/api/phonebooks')
+            const { data } = await axios.get('http://localhost:3000/api/phonebooks', {params: this.params})
             if(data.status){
-            this.setState({ users: data.data.result.map(item =>{
+            this.setState({ users: [...(this.params.page === 1 ? []: this.state.users), ...data.data.result.map(item =>{
                 item.sent = true
                 return item
-            }) })
+            }) 
+        ]
+        })
+
+            this.params.page = data.data.page
+            this.params.totalPage = data.data.totalPage
+
             }else{
                 alert('gagal ambil data')
             }
@@ -120,6 +132,20 @@ export default class UserBox extends Component {
         }
     }
 
+    searchUser = (query) => {
+        console.log(query);
+        this.params = { ...this.params, ...query, page: 1 }
+        console.log(this.params);
+        this.loadUser()
+    }
+
+    loadPagination = () => {
+        if (this.params.page <= this.params.totalPage) {
+            this.params = { ...this.params, page: this.params.page + 1 }
+        }
+        this.loadUser()
+    }
+
     showAdd = (props) => {
         if (!props.show) {
             return null;
@@ -130,7 +156,7 @@ export default class UserBox extends Component {
                     <h6>Adding Form</h6>
                 </div>
                 <div className="card-body">
-                    <UserForm add={this.addUser} cancel={this.handleCancelClick} />
+                    <UserForm submit={this.addUser} cancel={this.handleCancelClick} />
                 </div>
             </div>
         );
@@ -166,18 +192,18 @@ export default class UserBox extends Component {
                         <h6>Search Form</h6>
                     </div>
                     <div className="card-body">
-                        <UserSearchForm />
+                        <UserSearchForm submit={this.searchUser} />
                     </div>
                 </div> 
+                {/* <hr /> */}
                 <UserList 
                 data={this.state.users} 
                 removeUser={this.removeUser} 
                 updateUser={this.updateUser}
                 resendUser={this.resendUser}
-
+                loadUser ={this.loadPagination}
                 />
-            </div>
-
+                </div>
         )
     }
 }

@@ -6,7 +6,8 @@ export default class UserForm extends Component {
         super(props)
         this.state = {
             name: '',
-            phone: ''
+            phone: '',
+            isAdd: false
         }
     }
 
@@ -21,12 +22,11 @@ export default class UserForm extends Component {
 
     handleSubmit = (event) => {
         event.preventDefault()
-        this.props.add(this.state.name, this.state.phone)
+        this.props.submit(this.state.name, this.state.phone)
         this.setState({ name: '', phone: '' })
     }
 
     render() {
-        console.log(this.props, 'wooooy g mmm')
         return (
             <form onSubmit={this.handleSubmit}>
                 <div className="row g-3 align-items-center">
@@ -34,16 +34,16 @@ export default class UserForm extends Component {
                         <label htmlFor="name" className="col-form-label">Name</label>
                     </div>
                     <div className="col-auto">
-                        <input type="text" id="inputPassword6" name="name" className="form-control" aria-describedby="passwordHelpInline" onChange={this.handleInputChange} value={this.state.name} />
+                        <input type="text" id="name" name="name" className="form-control" aria-describedby="passwordHelpInline" onChange={this.handleInputChange} value={this.state.name} placeholder="name"/>
                     </div>
                     <div className="col-auto">
                         <label htmlFor="phone" className="col-form-label">Phone</label>
                     </div>
                     <div className="col-auto">
-                        <input type="integer" id="phone" name="phone" className="form-control" aria-describedby="passwordHelpInline" onChange={this.handleInputChange} value={this.state.phone} />
+                        <input type="integer" id="phone" name="phone" className="form-control" aria-describedby="passwordHelpInline" onChange={this.handleInputChange} value={this.state.phone} placeholder="phone"/>
                     </div>
                     <div className="col-auto">
-                        <button className="btn btn-success" type="submit"><i className="fa-regular fa-circle-check"></i> Save</button>
+                        <button className="btn btn-success" type="submit"><i className="fa-regular fa-circle-check"></i> {this.props.submitLabel || 'Save'}</button>
                         <button className="btn btn-warning text-light" onClick={this.props.cancel}><i className="fa-solid fa-ban"></i> Cancel</button>
                     </div>
                 </div>

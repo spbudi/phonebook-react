@@ -1,7 +1,17 @@
 import UserItem from "./UserItem"
 import React from "react"
 export default function UserList(props) {
+
+    const scrolling = (event) => {
+        var element = event.target;
+        if (element.scrollHeight - element.scrollTop === element.clientHeight)
+        {
+            props.loadUser()
+        }
+    }
+
     return (
+        <div onScroll={scrolling} style={{overflow: 'scroll', height: 250}}>
         <table className="table table-striped mt-4">
             <thead>
                 <tr>
@@ -24,10 +34,12 @@ export default function UserList(props) {
                         remove={()=> props.removeUser(user.id)} 
                         resend={()=> props.resendUser(user.id, user.name, user.phone)} 
                         update={props.updateUser}
+
                         />
                     )
                 })}
             </tbody>
         </table>
+        </div>
     )
 }
